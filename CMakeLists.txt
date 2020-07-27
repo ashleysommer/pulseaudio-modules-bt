@@ -28,6 +28,7 @@ if(CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__FILE__='\"$(subst ${CMAKE_SOURCE_DIR}/src/,,$(abspath $<))\"'")
 endif()
 
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(CODEC_AAC_FDK "LC-AAC support using fdk-aac(-free)" ON)
 option(CODEC_APTX_FF "aptX Classic support using FFmpeg" ON)
 option(CODEC_APTX_HD_FF "aptX HD support using FFmpeg" ON)
@@ -165,9 +166,15 @@ set(CMAKE_INSTALL_RPATH ${PulseAudio_CORE_LIBDIR}:${PulseAudio_modlibexecdir})
 
 
 # libbluez5-util
-add_library(bluez5-util SHARED
-        ${bluez5_util_SOURCES}
-        )
+if (NOT BUILD_SHARED_LIBS)
+    add_library(bluez5-util STATIC
+            ${bluez5_util_SOURCES}
+            )
+else()
+    add_library(bluez5-util SHARED
+            ${bluez5_util_SOURCES}
+            )
+endif()
 set(bluez5_util_LIBS ${bluez5_util_LIBS} ${SBC_LIBRARIES} ${DBUS_LIBRARIES} ${MOD_LIBS} dl)
 target_link_libraries(bluez5-util ${bluez5_util_LIBS})
 
